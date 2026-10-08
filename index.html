@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portofolio Pribadi & Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-glass: rgba(15, 23, 42, 0.75);
+            --accent: #38bdf8;
+            --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            --accent-hover: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --radius-lg: 16px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.08) 0%, transparent 25%);
+            background-attachment: fixed;
+        }
+
+        /* Header Navigation */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        nav.tabs-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: var(--accent-gradient);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .admin-trigger {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .admin-trigger:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Main Container */
+        main {
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex-grow: 1;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glass Cards with Hover Effects */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .interactive-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 15px 35px -10px rgba(56, 189, 248, 0.15);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+
+        .section-title i { color: var(--accent); }
+
+        /* Profile Layout */
+        .profile-header {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .profile-info h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .profile-info p { color: var(--text-muted); font-size: 1.1rem; }
+
+        .data-list { display: flex; flex-direction: column; gap: 0.8rem; }
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.08);
+        }
+        .data-item .label { color: var(--text-muted); font-size: 0.9rem; }
+        .data-item .val { font-weight: 600; text-align: right; }
+
+        /* Photo Memories Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .gallery-item {
+            overflow: hidden;
+            border-radius: var(--radius-sm);
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            transition: 0.3s;
+        }
+
+        .gallery-item:hover img { transform: scale(1.05); }
+        .gallery-cap { padding: 0.75rem; font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Cards Layout for Education/Parents/Universities */
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Quotes/Advice Section */
+        .quote-card {
+            position: relative;
+            padding: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .quote-card i.quote-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.3;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        /* Social Media Icons */
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.2rem;
+            text-decoration: none;
+            color: var(--text-main);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .social-link:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(8px);
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* Admin Modal Dashboard */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid var(--border);
+            max-width: 900px;
+            margin: auto;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            color: var(--text-main);
+        }
+
+        .admin-form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .admin-form-group input, .admin-form-group textarea, .admin-form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: #fff;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+
+        .admin-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .login-box {
+            max-width: 400px;
+            margin: 10vh auto;
+            text-align: center;
+        }
+
+        /* Utility */
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 1rem; padding: 1rem; }
+            nav.tabs-nav { width: 100%; }
+            .profile-header { text-align: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation Tabs -->
+    <header>
+        <div class="brand"><i class="fa-solid fa-graduation-cap"></i> Portofolio</div>
+        <nav class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab(0)"><i class="fa-solid fa-user"></i> Beranda</button>
+            <button class="tab-btn" onclick="switchTab(1)"><i class="fa-solid fa-users"></i> Data Orangtua</button>
+            <button class="tab-btn" onclick="switchTab(2)"><i class="fa-solid fa-school"></i> Pendidikan</button>
+            <button class="tab-btn" onclick="switchTab(3)"><i class="fa-solid fa-trophy"></i> Prestasi & Impian</button>
+            <button class="tab-btn" onclick="switchTab(4)"><i class="fa-solid fa-share-nodes"></i> Media Sosial</button>
+            <button class="tab-btn" onclick="switchTab(5)"><i class="fa-solid fa-book-quran"></i> Nasihat Guru</button>
+        </nav>
+        <button class="admin-trigger" onclick="openAdmin()"><i class="fa-solid fa-lock"></i> Admin</button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main>
+
+        <!-- TAB 1: BERANDA (DATA PRIBADI) -->
+        <div class="tab-content active" id="tab-0">
+            <div class="glass-card profile-header interactive-card">
+                <img src="" id="display-fotoProfil" class="profile-img" alt="Foto Profil">
+                <div class="profile-info">
+                    <h1 id="display-nama">...</h1>
+                    <p id="display-motto" style="font-style: italic; color: var(--accent);">"..."</p>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="glass-card interactive-card">
+                    <h2 class="section-title"><i class="fa-solid fa-id-card"></i> Data Pribadi</h2>
+                    <div class="data-list">
+                        <div class="data-item"><span class="label">Tempat, Tgl Lahir</span><span class="val" id="display-ttl">...</span></div>
+                        <div class="data-item"><span class="label">Asal Kota</span><span class="val" id="display-asalKota">...</span></div>
+                        <div class="data-item"><span class="label">Alamat Tinggal</span><span class="val" id="display-alamatPribadi">...</span></div>
+                        <div class="data-item"><span class="label">Hafalan Al-Qur'an</span><span class="val" id="display-hafalan">...</span></div>
+                        <div class="data-item"><span class="label">Cita-Cita</span><span class="val" id="display-citaCita">...</span></div>
+                        <div class="data-item"><span class="label">Hobi</span><span class="val" id="display-hobi">...</span></div>
+                    </div>
+                </div>
+
+                <div class="glass-card interactive-card">
+                    <h2 class="section-title"><i class="fa-solid fa-images"></i> Galeri Kenangan</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Momen berharga dalam perjalanan hidup.</p>
+                    <div class="gallery-grid" id="display-kenanganGrid">
+                        <!-- Items rendered via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: DATA ORANGTUA -->
+        <div class="tab-content" id="tab-1">
+            <div class="grid-2">
+                <!-- Data Ayah -->
+                <div class="glass-card interactive-card">
+                    <span class="badge">Orangtua</span>
+                    <h2 class="section-title"><i class="fa-solid fa-user-tie"></i> Data Ayah</h2>
+                    <div class="data-list">
+                        <div class="data-item"><span class="label">Nama Ayah</span><span class="val" id="display-namaAyah">...</span></div>
+                        <div class="data-item"><span class="label">TTL</span><span class="val" id="display-ttlAyah">...</span></div>
+                        <div class="data-item"><span class="label">Asal Kota</span><span class="val" id="display-asalKotaAyah">...</span></div>
+                        <div class="data-item"><span class="label">Alamat</span><span class="val" id="display-alamatOrtu">...</span></div>
+                        <div class="data-item"><span class="label">Pendidikan SMP</span><span class="val" id="display-smpAyah">...</span></div>
+                        <div class="data-item"><span class="label">Pendidikan SMA</span><span class="val" id="display-smaAyah">...</span></div>
+                        <div class="data-item"><span class="label">Perguruan Tinggi</span><span class="val" id="display-kuliahAyah">...</span></div>
+                        <div class="data-item"><span class="label">Pekerjaan</span><span class="val" id="display-pekerjaanAyah">...</span></div>
+                    </div>
+                </div>
+
+                <!-- Data Ibu & Anak -->
+                <div class="glass-card interactive-card">
+                    <span class="badge">Orangtua</span>
+                    <h2 class="section-title"><i class="fa-solid fa-user-nurse"></i> Data Ibu & Keluarga</h2>
+                    <div class="data-list">
+                        <div class="data-item"><span class="label">Nama Ibu</span><span class="val" id="display-namaIbu">...</span></div>
+                        <div class="data-item"><span class="label">TTL</span><span class="val" id="display-ttlIbu">...</span></div>
+                        <div class="data-item"><span class="label">Asal Kota</span><span class="val" id="display-asalKotaIbu">...</span></div>
+                        <div class="data-item"><span class="label">Pendidikan SMP</span><span class="val" id="display-smpIbu">...</span></div>
+                        <div class="data-item"><span class="label">Pendidikan SMA</span><span class="val" id="display-smaIbu">...</span></div>
+                        <div class="data-item"><span class="label">Perguruan Tinggi</span><span class="val" id="display-kuliahIbu">...</span></div>
+                        <div class="data-item"><span class="label">Pekerjaan</span><span class="val" id="display-pekerjaanIbu">...</span></div>
+                        <div class="data-item"><span class="label">Nama Anak-anak</span><span class="val" id="display-namaAnak">...</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: PENDIDIKAN -->
+        <div class="tab-content" id="tab-2">
+            <h2 class="section-title"><i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan</h2>
+            <div class="grid-3" id="display-pendidikanGrid">
+                <!-- Educational levels dynamically injected -->
+            </div>
+        </div>
+
+        <!-- TAB 4: PRESTASI & UNIVERSITAS IMPIAN -->
+        <div class="tab-content" id="tab-3">
+            <h2 class="section-title"><i class="fa-solid fa-award"></i> Prestasi Akademik & Non-Akademik</h2>
+            <div class="grid-3" id="display-prestasiGrid" style="margin-bottom: 3rem;">
+                <!-- Prestasi dynamically injected -->
+            </div>
+
+            <h2 class="section-title"><i class="fa-solid fa-building-columns"></i> 3 Universitas Impian & Jurusan</h2>
+            <div class="grid-3" id="display-univGrid">
+                <!-- Target Universities injected -->
+            </div>
+        </div>
+
+        <!-- TAB 5: MEDIA SOSIAL -->
+        <div class="tab-content" id="tab-4">
+            <h2 class="section-title"><i class="fa-solid fa-hashtag"></i> Hubungi & Ikuti Saya</h2>
+            <div class="grid-2 mt-1">
+                <a href="#" id="link-wa" target="_blank" class="social-link interactive-card">
+                    <div class="social-icon" style="background: #25D366; color: white;"><i class="fa-brands fa-whatsapp"></i></div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">WhatsApp</div>
+                        <div style="font-weight: 700;" id="display-wa">...</div>
+                    </div>
+                </a>
+
+                <a href="#" id="link-gmail" target="_blank" class="social-link interactive-card">
+                    <div class="social-icon" style="background: #EA4335; color: white;"><i class="fa-regular fa-envelope"></i></div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Gmail</div>
+                        <div style="font-weight: 700;" id="display-gmail">...</div>
+                    </div>
+                </a>
+
+                <a href="#" id="link-ig" target="_blank" class="social-link interactive-card">
+                    <div class="social-icon" style="background: linear-gradient(45deg, #f09433, #bc1888); color: white;"><i class="fa-brands fa-instagram"></i></div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Instagram</div>
+                        <div style="font-weight: 700;" id="display-ig">...</div>
+                    </div>
+                </a>
+
+                <a href="#" id="link-fb" target="_blank" class="social-link interactive-card">
+                    <div class="social-icon" style="background: #1877F2; color: white;"><i class="fa-brands fa-facebook"></i></div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Facebook</div>
+                        <div style="font-weight: 700;" id="display-fb">...</div>
+                    </div>
+                </a>
+
+                <a href="#" id="link-tiktok" target="_blank" class="social-link interactive-card">
+                    <div class="social-icon" style="background: #000000; color: white; border: 1px solid var(--border);"><i class="fa-brands fa-tiktok"></i></div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">TikTok</div>
+                        <div style="font-weight: 700;" id="display-tiktok">...</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- TAB 6: NASIHAT GURU / MASYAIKH -->
+        <div class="tab-content" id="tab-5">
+            <h2 class="section-title"><i class="fa-solid fa-quote-left"></i> Nasihat Guru & Masyaikh</h2>
+            <div class="grid-2 mt-1" id="display-nasihatGrid">
+                <!-- Quotes dynamically loaded -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ADMIN MODAL SYSTEM -->
+    <div class="modal" id="adminModal">
+        <!-- Login Screen -->
+        <div class="modal-content login-box" id="adminLoginScreen">
+            <h2 style="margin-bottom: 1rem;"><i class="fa-solid fa-user-shield"></i> Login Admin</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Masukkan kata sandi untuk mengedit isi portofolio.</p>
+            <div class="admin-form-group">
+                <input type="password" id="adminPasswordInput" placeholder="Password Admin">
+            </div>
+            <button class="admin-btn" style="width: 100%;" onclick="verifyAdmin()">Masuk Dashboard</button>
+            <button class="admin-trigger" style="width: 100%; margin-top: 0.5rem;" onclick="closeAdmin()">Batal</button>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div class="modal-content" id="adminDashboardScreen" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+                <h2><i class="fa-solid fa-sliders"></i> Control Panel Admin</h2>
+                <button class="admin-trigger" onclick="closeAdmin()">Tutup & Lihat Hasil</button>
+            </div>
+
+            <form id="adminForm" onsubmit="saveAdminData(event)">
+                
+                <!-- Section 1: Data Pribadi -->
+                <h3 style="color: var(--accent); margin-bottom: 1rem;">1. Data Pribadi</h3>
+                <div class="grid-2">
+                    <div class="admin-form-group">
+                        <label>Foto Profil (Upload)</label>
+                        <input type="file" accept="image/*" onchange="handleImageUpload(this, 'fotoProfil')">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="input-nama">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Tempat, Tanggal Lahir</label>
+                        <input type="text" id="input-ttl">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Asal Kota</label>
+                        <input type="text" id="input-asalKota">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Alamat Tempat Tinggal</label>
+                        <input type="text" id="input-alamatPribadi">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Hafalan Al-Qur'an</label>
+                        <input type="text" id="input-hafalan">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Cita-Cita</label>
+                        <input type="text" id="input-citaCita">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Hobi</label>
+                        <input type="text" id="input-hobi">
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label>Motto Hidup</label>
+                    <input type="text" id="input-motto">
+                </div>
+
+                <!-- Section 2: Data Orangtua -->
+                <h3 style="color: var(--accent); margin-top: 2rem; margin-bottom: 1rem;">2. Data Orangtua</h3>
+                <div class="admin-form-group">
+                    <label>Alamat Tempat Tinggal Orangtua</label>
+                    <input type="text" id="input-alamatOrtu">
+                </div>
+                <div class="grid-2">
+                    <!-- Ayah -->
+                    <div>
+                        <h4 style="margin-bottom:0.5rem; color:var(--text-muted);">Ayah</h4>
+                        <div class="admin-form-group"><label>Nama Ayah</label><input type="text" id="input-namaAyah"></div>
+                        <div class="admin-form-group"><label>TTL Ayah</label><input type="text" id="input-ttlAyah"></div>
+                        <div class="admin-form-group"><label>Asal Kota Ayah</label><input type="text" id="input-asalKotaAyah"></div>
+                        <div class="admin-form-group"><label>Pendidikan SMP</label><input type="text" id="input-smpAyah"></div>
+                        <div class="admin-form-group"><label>Pendidikan SMA</label><input type="text" id="input-smaAyah"></div>
+                        <div class="admin-form-group"><label>Kuliah</label><input type="text" id="input-kuliahAyah"></div>
+                        <div class="admin-form-group"><label>Pekerjaan</label><input type="text" id="input-pekerjaanAyah"></div>
+                    </div>
+                    <!-- Ibu -->
+                    <div>
+                        <h4 style="margin-bottom:0.5rem; color:var(--text-muted);">Ibu</h4>
+                        <div class="admin-form-group"><label>Nama Ibu</label><input type="text" id="input-namaIbu"></div>
+                        <div class="admin-form-group"><label>TTL Ibu</label><input type="text" id="input-ttlIbu"></div>
+                        <div class="admin-form-group"><label>Asal Kota Ibu</label><input type="text" id="input-asalKotaIbu"></div>
+                        <div class="admin-form-group"><label>Pendidikan SMP</label><input type="text" id="input-smpIbu"></div>
+                        <div class="admin-form-group"><label>Pendidikan SMA</label><input type="text" id="input-smaIbu"></div>
+                        <div class="admin-form-group"><label>Kuliah</label><input type="text" id="input-kuliahIbu"></div>
+                        <div class="admin-form-group"><label>Pekerjaan</label><input type="text" id="input-pekerjaanIbu"></div>
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label>Nama Anak-Anak</label>
+                    <textarea id="input-namaAnak" rows="2"></textarea>
+                </div>
+
+                <!-- Section 3: Media Sosial -->
+                <h3 style="color: var(--accent); margin-top: 2rem; margin-bottom: 1rem;">3. Media Sosial & Kontak</h3>
+                <div class="grid-2">
+                    <div class="admin-form-group"><label>No WhatsApp (format: 628xxx)</label><input type="text" id="input-wa"></div>
+                    <div class="admin-form-group"><label>Email Gmail</label><input type="text" id="input-gmail"></div>
+                    <div class="admin-form-group"><label>Username Instagram</label><input type="text" id="input-ig"></div>
+                    <div class="admin-form-group"><label>Username Facebook</label><input type="text" id="input-fb"></div>
+                    <div class="admin-form-group"><label>Username TikTok</label><input type="text" id="input-tiktok"></div>
+                </div>
+
+                <!-- Section 4: Dynamic Dynamic Upload Lists -->
+                <h3 style="color: var(--accent); margin-top: 2rem; margin-bottom: 1rem;">4. Kelola Kenangan, Sekolah, Prestasi, Univ & Nasihat</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Upload gambar dan isi rincian untuk bagian-bagian yang terkait dynamic media.</p>
+
+                <!-- Kenangan Upload -->
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                    <h4>+ Tambah Foto Kenangan</h4>
+                    <div class="grid-2 mt-1">
+                        <input type="file" accept="image/*" id="input-kenanganFile">
+                        <input type="text" id="input-kenanganCap" placeholder="Keterangan foto...">
+                    </div>
+                    <button type="button" class="admin-btn mt-1" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="addKenangan()">Tambah Kenangan</button>
+                </div>
+
+                <!-- Sekolah Dynamic Edit -->
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                    <h4>Edit Data Sekolah (TK, SD, SMP, SMA, Kuliah)</h4>
+                    <div id="adminPendidikanInputs"></div>
+                </div>
+
+                <!-- Universitas Impian Dynamic Edit -->
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                    <h4>Edit 3 Universitas Impian</h4>
+                    <div id="adminUnivInputs"></div>
+                </div>
+
+                <!-- Nasihat Dynamic Edit -->
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                    <h4>+ Tambah Nasihat Guru / Masyaikh</h4>
+                    <div class="grid-2 mt-1">
+                        <input type="text" id="input-nasihatGuru" placeholder="Nama Guru/Syaikh">
+                        <textarea id="input-nasihatTeks" placeholder="Isi Nasihat..."></textarea>
+                    </div>
+                    <button type="button" class="admin-btn mt-1" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="addNasihat()">Tambah Nasihat</button>
+                </div>
+
+                <div style="position: sticky; bottom: 0; background: #1e293b; padding: 1rem 0; border-top: 1px solid var(--border); margin-top: 2rem;">
+                    <button type="submit" class="admin-btn" style="width: 100%; font-size: 1rem;">SIMPAN SELURUH PERUBAHAN</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // Data Default Template
+        const defaultData = {
+            fotoProfil: "https://via.placeholder.com/150",
+            nama: "Ahmad Fulan",
+            ttl: "Jakarta, 1 Januari 2005",
+            asalKota: "Jakarta",
+            alamatPribadi: "Jl. Merdeka No. 45, Jakarta Pusat",
+            hafalan: "30 Juz",
+            citaCita: "Software Engineer & Akademisi",
+            hobi: "Membaca, Coding, Memanah",
+            motto: "Sebaik-baik manusia adalah yang paling bermanfaat bagi orang lain.",
+            
+            // Data Orangtua
+            alamatOrtu: "Jl. Mawar No. 12, Bandung",
+            namaAyah: "Fulan Senior",
+            ttlAyah: "Bandung, 15 Mei 1975",
+            asalKotaAyah: "Bandung",
+            smpAyah: "SMPN 1 Bandung",
+            smaAyah: "SMAN 3 Bandung",
+            kuliahAyah: "S1 Teknik",
+            pekerjaanAyah: "Wiraswasta",
+
+            namaIbu: "Fulanah",
+            ttlIbu: "Bogor, 20 Agustus 1978",
+            asalKotaIbu: "Bogor",
+            smpIbu: "SMPN 2 Bogor",
+            smaIbu: "SMAN 1 Bogor",
+            kuliahIbu: "S1 Pendidikan",
+            pekerjaanIbu: "Guru",
+            namaAnak: "1. Ahmad Fulan\n2. Fatimah Az-Zahra",
+
+            // Sosmed
+            wa: "6281234567890",
+            gmail: "fulan@gmail.com",
+            ig: "ahmad_fulan",
+            fb: "Ahmad Fulan",
+            tiktok: "ahmad_fulan_official",
+
+            // Dynamic Arrays
+            kenangan: [
+                { img: "https://via.placeholder.com/300x200", cap: "Momen wisuda tahfidz" }
+            ],
+            pendidikan: [
+                { level: "TK", nama: "TK Islam Terpadu", lokasi: "Jakarta", img: "https://via.placeholder.com/300x180", prestasi: "Juara 1 Lomba Mewarnai" },
+                { level: "SD", nama: "SDIT Al-Azhar", lokasi: "Jakarta", img: "https://via.placeholder.com/300x180", prestasi: "Juara 2 TPA Cerdas Cermat" },
+                { level: "SMP", nama: "SMP Al-Kahfi", lokasi: "Bogor", img: "https://via.placeholder.com/300x180", prestasi: "Juara 1 Lomba Pidato Bahasa Arab" },
+                { level: "SMA", nama: "SMA Negeri 1", lokasi: "Jakarta", img: "https://via.placeholder.com/300x180", prestasi: "Medali Emas OSN Informatika" },
+                { level: "Kuliah", nama: "Universitas Indonesia", lokasi: "Depok", img: "https://via.placeholder.com/300x180", prestasi: "Mahasiswa Berprestasi Tingkat Fakultas" }
+            ],
+            universitas: [
+                { nama: "Universitas Indonesia", jurusan: "Teknik Informatika", img: "https://via.placeholder.com/300x180" },
+                { nama: "Institut Teknologi Bandung", jurusan: "Sains Data", img: "https://via.placeholder.com/300x180" },
+                { nama: "Universitas Gadjah Mada", jurusan: "Ilmu Komputer", img: "https://via.placeholder.com/300x180" }
+            ],
+            nasihat: [
+                { guru: "Syaikh Dr. Abdullah", teks: "Ihlaslah dalam menuntut ilmu, karena ilmu tanpa keikhlasan seperti pohon tanpa buah." },
+                { guru: "KH. Hasan Basri", teks: "Jagalah Al-Qur'an dalam dadamu, niscaya Al-Qur'an akan menjagamu di setiap langkah hidupmu." }
+            ]
+        };
+
+        // Initialize Data Store
+        let appData = JSON.parse(localStorage.getItem('portfolioDataDB')) || defaultData;
+
+        // Navigation Tabs Engine
+        function switchTab(index) {
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+
+        // Render Data into DOM
+        function renderUI() {
+            // Text values
+            const fields = [
+                'nama','ttl','asalKota','alamatPribadi','hafalan','citaCita','hobi','motto',
+                'alamatOrtu','namaAyah','ttlAyah','asalKotaAyah','smpAyah','smaAyah','kuliahAyah','pekerjaanAyah',
+                'namaIbu','ttlIbu','asalKotaIbu','smpIbu','smaIbu','kuliahIbu','pekerjaanIbu','namaAnak',
+                'wa','gmail','ig','fb','tiktok'
+            ];
+
+            fields.forEach(f => {
+                const el = document.getElementById('display-' + f);
+                if (el) el.innerText = appData[f] || '-';
+            });
+
+            // Profile Picture
+            document.getElementById('display-fotoProfil').src = appData.fotoProfil;
+
+            // Social Media Links
+            document.getElementById('link-wa').href = `https://wa.me/${appData.wa}`;
+            document.getElementById('link-gmail').href = `mailto:${appData.gmail}`;
+            document.getElementById('link-ig').href = `https://instagram.com/${appData.ig}`;
+            document.getElementById('link-fb').href = `https://facebook.com/${appData.fb}`;
+            document.getElementById('link-tiktok').href = `https://tiktok.com/@${appData.tiktok}`;
+
+            // Render Kenangan
+            const kenanganGrid = document.getElementById('display-kenanganGrid');
+            kenanganGrid.innerHTML = appData.kenangan.map(k => `
+                <div class="gallery-item">
+                    <img src="${k.img}" alt="Kenangan">
+                    <div class="gallery-cap">${k.cap}</div>
+                </div>
+            `).join('');
+
+            // Render Pendidikan
+            const pendidikanGrid = document.getElementById('display-pendidikanGrid');
+            pendidikanGrid.innerHTML = appData.pendidikan.map(p => `
+                <div class="glass-card interactive-card">
+                    <span class="badge">${p.level}</span>
+                    <img src="${p.img}" class="card-img" alt="${p.nama}">
+                    <h3 style="margin-bottom:0.3rem;">${p.nama}</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted);"><i class="fa-solid fa-location-dot"></i> ${p.lokasi}</p>
+                </div>
+            `).join('');
+
+            // Render Prestasi (dari array Pendidikan)
+            const prestasiGrid = document.getElementById('display-prestasiGrid');
+            prestasiGrid.innerHTML = appData.pendidikan.map(p => `
+                <div class="glass-card interactive-card">
+                    <span class="badge">Prestasi ${p.level}</span>
+                    <h3 style="margin-bottom:0.5rem; color:var(--accent);"><i class="fa-solid fa-trophy"></i> ${p.prestasi}</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">Diukir saat menempuh pendidikan di ${p.nama}</p>
+                </div>
+            `).join('');
+
+            // Render Universitas Impian
+            const univGrid = document.getElementById('display-univGrid');
+            univGrid.innerHTML = appData.universitas.map(u => `
+                <div class="glass-card interactive-card">
+                    <img src="${u.img}" class="card-img" alt="${u.nama}">
+                    <h3>${u.nama}</h3>
+                    <p style="color:var(--accent); font-weight:600; margin-top:0.3rem;">${u.jurusan}</p>
+                </div>
+            `).join('');
+
+            // Render Nasihat Guru
+            const nasihatGrid = document.getElementById('display-nasihatGrid');
+            nasihatGrid.innerHTML = appData.nasihat.map(n => `
+                <div class="glass-card quote-card interactive-card">
+                    <i class="fa-solid fa-quote-right quote-icon"></i>
+                    <p style="font-size:1.05rem; line-height:1.6; margin-bottom:1rem; font-style:italic;">"${n.teks}"</p>
+                    <h4 style="color:var(--accent);">- ${n.guru}</h4>
+                </div>
+            `).join('');
+        }
+
+        /* ADMIN SYSTEM FUNCTIONS */
+        function openAdmin() {
+            document.getElementById('adminModal').style.display = 'block';
+            document.getElementById('adminLoginScreen').style.display = 'block';
+            document.getElementById('adminDashboardScreen').style.display = 'none';
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
+        function verifyAdmin() {
+            const pwd = document.getElementById('adminPasswordInput').value;
+            if (pwd === 'ADMIN2026') {
+                document.getElementById('adminLoginScreen').style.display = 'none';
+                document.getElementById('adminDashboardScreen').style.display = 'block';
+                populateAdminForms();
+            } else {
+                alert('Password Admin Salah!');
+            }
+        }
+
+        function populateAdminForms() {
+            const fields = [
+                'nama','ttl','asalKota','alamatPribadi','hafalan','citaCita','hobi','motto',
+                'alamatOrtu','namaAyah','ttlAyah','asalKotaAyah','smpAyah','smaAyah','kuliahAyah','pekerjaanAyah',
+                'namaIbu','ttlIbu','asalKotaIbu','smpIbu','smaIbu','kuliahIbu','pekerjaanIbu','namaAnak',
+                'wa','gmail','ig','fb','tiktok'
+            ];
+
+            fields.forEach(f => {
+                const el = document.getElementById('input-' + f);
+                if (el) el.value = appData[f] || '';
+            });
+
+            // Dynamic Inputs Generation for Pendidikan
+            const pendContainer = document.getElementById('adminPendidikanInputs');
+            pendContainer.innerHTML = appData.pendidikan.map((p, i) => `
+                <div style="border-bottom:1px solid var(--border); padding:0.5rem 0; margin-bottom:0.5rem;">
+                    <strong>Level ${p.level}</strong>
+                    <div class="grid-2 mt-1">
+                        <input type="text" value="${p.nama}" onchange="appData.pendidikan[${i}].nama=this.value" placeholder="Nama Sekolah">
+                        <input type="text" value="${p.lokasi}" onchange="appData.pendidikan[${i}].lokasi=this.value" placeholder="Lokasi">
+                        <input type="text" value="${p.prestasi}" onchange="appData.pendidikan[${i}].prestasi=this.value" placeholder="Prestasi">
+                        <div>
+                            <label style="font-size:0.75rem;">Ganti Foto Sekolah:</label>
+                            <input type="file" accept="image/*" onchange="handleNestedImageUpload(this, 'pendidikan', ${i})">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Dynamic Inputs Generation for Universitas
+            const univContainer = document.getElementById('adminUnivInputs');
+            univContainer.innerHTML = appData.universitas.map((u, i) => `
+                <div style="border-bottom:1px solid var(--border); padding:0.5rem 0; margin-bottom:0.5rem;">
+                    <strong>Univ Impian ${i+1}</strong>
+                    <div class="grid-2 mt-1">
+                        <input type="text" value="${u.nama}" onchange="appData.universitas[${i}].nama=this.value" placeholder="Nama Kampus">
+                        <input type="text" value="${u.jurusan}" onchange="appData.universitas[${i}].jurusan=this.value" placeholder="Jurusan">
+                        <div>
+                            <label style="font-size:0.75rem;">Ganti Foto Kampus:</label>
+                            <input type="file" accept="image/*" onchange="handleNestedImageUpload(this, 'universitas', ${i})">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Image Handling via Base64 (Local Storage Persistence)
+        function handleImageUpload(input, targetKey) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appData[targetKey] = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleNestedImageUpload(input, arrayKey, index) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appData[arrayKey][index].img = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addKenangan() {
+            const fileInput = document.getElementById('input-kenanganFile');
+            const capInput = document.getElementById('input-kenanganCap');
+            
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appData.kenangan.push({
+                        img: e.target.result,
+                        cap: capInput.value || 'Foto Kenangan'
+                    });
+                    alert('Kenangan berhasil ditambahkan!');
+                    capInput.value = '';
+                    fileInput.value = '';
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert('Pilih foto terlebih dahulu!');
+            }
+        }
+
+        function addNasihat() {
+            const guru = document.getElementById('input-nasihatGuru').value;
+            const teks = document.getElementById('input-nasihatTeks').value;
+
+            if (guru && teks) {
+                appData.nasihat.push({ guru, teks });
+                alert('Nasihat berhasil ditambahkan!');
+                document.getElementById('input-nasihatGuru').value = '';
+                document.getElementById('input-nasihatTeks').value = '';
+            } else {
+                alert('Isi nama guru dan teks nasihat!');
+            }
+        }
+
+        function saveAdminData(e) {
+            e.preventDefault();
+            
+            const fields = [
+                'nama','ttl','asalKota','alamatPribadi','hafalan','citaCita','hobi','motto',
+                'alamatOrtu','namaAyah','ttlAyah','asalKotaAyah','smpAyah','smaAyah','kuliahAyah','pekerjaanAyah',
+                'namaIbu','ttlIbu','asalKotaIbu','smpIbu','smaIbu','kuliahIbu','pekerjaanIbu','namaAnak',
+                'wa','gmail','ig','fb','tiktok'
+            ];
+
+            fields.forEach(f => {
+                const el = document.getElementById('input-' + f);
+                if (el) appData[f] = el.value;
+            });
+
+            // Persist to LocalStorage
+            localStorage.setItem('portfolioDataDB', JSON.stringify(appData));
+            alert('Semua perubahan berhasil disimpan secara permanen!');
+            renderUI();
+            closeAdmin();
+        }
+
+        // Initialize App on Load
+        window.onload = function() {
+            renderUI();
+        };
+    </script>
+</body>
+</html>
